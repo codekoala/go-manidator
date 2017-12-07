@@ -90,11 +90,11 @@ func (this *Manidator) Begin(ctx context.Context) {
 		defer this.wg.Done()
 
 		for {
-			this.printLines()
+			linesPrinted := this.printLines()
 
 			select {
 			case <-time.After(this.Interval):
-				this.eraseLines()
+				this.eraseLinesN(linesPrinted)
 			case <-this.Done():
 				// all Dators finished
 				return
@@ -120,8 +120,10 @@ func (this *Manidator) Stop() {
 	this.wg.Wait()
 }
 
-// printLines iterates over each Dator, printing the last line of output from each one.
-func (this *Manidator) printLines() {
+// printLines iterates over each Dator, printing the last line of output from each one. Returns the number of lines
+// printed.
+func (this *Manidator) printLines() int {
+	linesPrinted := 0
 	closedCnt := 0
 
 	width, _, err := terminal.GetSize(0)
@@ -138,7 +140,7 @@ func (this *Manidator) printLines() {
 
 		// just in case the name changed after Begin was called
 		if len(name) > this.nameWidth {
-			name = name[this.nameWidth:]
+			name = name[:this.nameWidth]
 		}
 
 		line := dator.GetLastLine()
@@ -149,6 +151,7 @@ func (this *Manidator) printLines() {
 		}
 
 		fmt.Printf(this.fmtString, name, line)
+		linesPrinted++
 
 		if dator.IsClosed() {
 			closedCnt++
@@ -158,9 +161,16 @@ func (this *Manidator) printLines() {
 	if closedCnt == len(this.dators) {
 		close(this.done)
 	}
+
+	return linesPrinted
+}
+
+// eraseLinesN wipes out a certain number of lines above the cursor.
+func (this *Manidator) eraseLinesN(count int) {
+	fmt.Printf(strings.Repeat(eraseLine, count))
 }
 
 // eraseLines wipes out each line of output from each Dator.
 func (this *Manidator) eraseLines() {
-	fmt.Printf(strings.Repeat(eraseLine, len(this.dators)))
+	this.eraseLinesN(len(this.dators))
 }

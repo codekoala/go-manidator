@@ -34,6 +34,12 @@ func main() {
 	fmt.Println("starting")
 	m.Begin(ctx)
 
+	// add more things after starting the other things
+	go func() {
+		time.Sleep(3 * time.Second)
+		m.Add(newDator("bamm-bamm"), newDator("pebbles"))
+	}()
+
 	// wait for things to happen
 	select {
 	case <-stop:
