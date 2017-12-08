@@ -16,6 +16,8 @@ output by implementing the `manidator.Dator` interface.
 I wanted to provide output from multiple commands at the same time, but I didn't
 want the output of each command to get mixed up with the output of the others.
 
+See [go-aws-lanes](https://github.com/codekoala/go-aws-lanes) for details on that.
+
 ## Where does the name come from?
 
 The name `manidator` is a sort of portmanteau of "many" and "updater".
